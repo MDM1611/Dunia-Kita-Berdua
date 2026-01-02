@@ -1,0 +1,1398 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dunia Kita Berdua</title>
+    <!-- Mengambil Ikon Lucu dari FontAwesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Mengambil Font Lucu dari Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --pink-soft: #FFB7B2;
+            --pink-deep: #FF69B4;
+            --blue-sky: #87CEEB;
+            --blue-mint: #A2E1DB;
+            --text-color: #555;
+            --white-glass: rgba(255, 255, 255, 0.9);
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Nunito', sans-serif;
+            /* Gradasi latar belakang Pink dan Biru Langit */
+            background: linear-gradient(135deg, var(--pink-soft), var(--blue-sky));
+            min-height: 100vh;
+            color: var(--text-color);
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 0;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            font-family: 'Fredoka One', cursive;
+            font-size: 3em;
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+        }
+
+        /* Gaya Kartu untuk setiap fitur */
+        .card {
+            background: var(--white-glass);
+            border-radius: 25px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease;
+            border: 2px solid white;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 2px dashed var(--pink-soft);
+            padding-bottom: 10px;
+        }
+
+        .card-header i {
+            font-size: 1.8em;
+            margin-right: 15px;
+            color: var(--pink-deep);
+        }
+
+        .card-header h2 {
+            margin: 0;
+            font-size: 1.5em;
+            color: var(--blue-sky);
+            font-family: 'Fredoka One', cursive;
+        }
+
+        /* Fitur: Audio */
+        .audio-player {
+            width: 100%;
+            margin-top: 10px;
+            border-radius: 50px;
+        }
+
+        /* Fitur: Catatan */
+        .note-input-group {
+            display: flex;
+            gap: 10px;
+        }
+        #note-input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid var(--blue-mint);
+            border-radius: 15px;
+            outline: none;
+        }
+        #add-note-btn {
+            padding: 10px 20px;
+            background: var(--pink-deep);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+        #add-note-btn:hover {
+            background: #d14785;
+        }
+        #notes-list {
+            list-style: none;
+            padding: 0;
+            margin-top: 15px;
+        }
+        #notes-list li {
+            background: #fff0f5;
+            padding: 12px;
+            margin-bottom: 8px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        /* Fitur: Game */
+        #game-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            grid-template-rows: repeat(6, 1fr);
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            background: #f0f8ff;
+            border: 3px solid var(--blue-sky);
+            border-radius: 15px;
+        }
+        .grid-cell {
+            width: 100%;
+            height: 100%;
+            box-sizing: border-box;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5em;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+        .wall {
+            background-color: #778899; /* Slate Gray */
+            border-radius: 2px;
+        }
+        .player {
+            background-color: var(--pink-deep);
+            border-radius: 50%;
+            transform: scale(0.7);
+            box-shadow: 0 0 5px white;
+            z-index: 10;
+        }
+        .start {
+            background-color: var(--blue-mint);
+        }
+        .finish {
+            background-color: #98FB98; /* Pale Green */
+        }
+        .monster::before {
+            content: '👻';
+            animation: float 1s ease-in-out infinite;
+        }
+        #jumpscare-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: black;
+            z-index: 2000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+        #jumpscare-screen img {
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        /* Game Controls */
+        .game-controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .horizontal-controls {
+            display: flex;
+            gap: 15px;
+        }
+        .btn-control {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: none;
+            background: var(--blue-sky);
+            color: white;
+            font-size: 1.5em;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: transform 0.1s;
+        }
+        .btn-control:active {
+            transform: scale(0.9);
+            background: var(--pink-deep);
+        }
+
+        /* Efek Kemenangan Hati */
+        .love-confetti {
+            position: fixed;
+            top: -50px;
+            z-index: 9999;
+            animation: fallDown linear forwards;
+            pointer-events: none;
+        }
+        @keyframes fallDown {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+        }
+
+        /* Fitur: Ucapan */
+        #greeting-display {
+            font-style: italic;
+            text-align: center;
+            font-size: 1.3em;
+            padding: 30px;
+            background: linear-gradient(to right, #e0c3fc, #8ec5fc);
+            color: white;
+            border-radius: 20px;
+            margin-bottom: 15px;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+        }
+        .btn-generate {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background: var(--blue-sky);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+        .btn-generate:hover {
+            background: #5cb8e6;
+        }
+
+        /* Fitur: Video */
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%; /* Rasio 16:9 */
+            height: 0;
+            overflow: hidden;
+            border-radius: 20px;
+            border: 5px solid white;
+        }
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        .video-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .video-item {
+            background: white;
+            padding: 15px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            border: 2px solid var(--pink-soft);
+        }
+        .video-item video {
+            width: 100%;
+            border-radius: 10px;
+        }
+
+        /* Fitur: Pesan */
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: var(--pink-deep);
+        }
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 15px;
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+        .form-group input:focus, .form-group textarea:focus {
+            border-color: var(--blue-sky);
+            outline: none;
+        }
+        .btn-send {
+            background: var(--pink-deep);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: bold;
+            width: 100%;
+        }
+
+        /* Fitur: Foto */
+        .photo-gallery {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .photo-card {
+            background: white;
+            padding: 15px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            border: 2px solid var(--pink-soft);
+        }
+        .photo-card img {
+            width: 100%;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+        .photo-desc {
+            font-size: 0.95em;
+            color: var(--text-color);
+            text-align: center;
+            font-style: italic;
+        }
+        .final-words {
+            margin-top: 30px;
+            padding: 20px;
+            background: linear-gradient(to right, var(--pink-soft), var(--blue-sky));
+            color: white;
+            border-radius: 15px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.1em;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px;
+            color: white;
+            font-weight: bold;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Menu Grid Styles */
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        /* Agar ikon Galeri (item ke-7) berada di tengah pada tampilan desktop (3 kolom) */
+        .menu-grid .menu-item:nth-child(7) {
+            grid-column: 2;
+        }
+        .menu-item {
+            background: var(--white-glass);
+            padding: 20px;
+            border-radius: 20px;
+            text-align: center;
+            cursor: pointer;
+            border: 2px solid white;
+            transition: transform 0.2s;
+        }
+        .menu-item:hover {
+            transform: scale(1.05);
+        }
+        .menu-item i {
+            font-size: 2em;
+            color: var(--pink-deep);
+            margin-bottom: 5px;
+            display: block;
+        }
+        .menu-item span {
+            font-weight: bold;
+            color: var(--blue-sky);
+        }
+        .card {
+            display: none; /* Sembunyikan konten fitur secara default */
+        }
+        .card.active {
+            display: block; /* Tampilkan jika aktif */
+        }
+        .btn-back {
+            background: var(--blue-mint);
+            border: none;
+            padding: 8px 15px;
+            border-radius: 10px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 15px;
+        }
+
+        /* Login Screen Styles */
+        #login-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--pink-soft), var(--blue-sky));
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .login-card {
+            background: var(--white-glass);
+            padding: 40px;
+            border-radius: 25px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            border: 2px solid white;
+            max-width: 90%;
+            width: 350px;
+        }
+        .login-card input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 2px solid var(--blue-mint);
+            border-radius: 15px;
+            box-sizing: border-box;
+            font-family: 'Nunito', sans-serif;
+            text-align: center;
+        }
+        #error-msg {
+            color: #ff4757;
+            margin-top: 10px;
+            display: none;
+            font-weight: bold;
+        }
+
+        /* Welcome Message Animation */
+        .welcome-message {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            animation: popUp 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+            width: 100%;
+        }
+        @keyframes popUp {
+            0% { transform: scale(0); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        /* Navigation Bar Styles */
+        .feature-nav {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.95);
+            padding: 10px 20px;
+            border-radius: 50px;
+            display: flex;
+            gap: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+            border: 3px solid var(--pink-soft);
+            z-index: 999;
+            width: max-content;
+            max-width: 90%;
+            overflow-x: auto;
+        }
+        .feature-nav div {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            cursor: pointer;
+            color: var(--text-color);
+            transition: all 0.3s ease;
+        }
+        .feature-nav div:hover {
+            background: var(--pink-soft);
+            color: white;
+        }
+        .feature-nav div.active {
+            background: var(--blue-sky);
+            color: white;
+            transform: scale(1.1);
+        }
+        .feature-nav i {
+            font-size: 1.2em;
+        }
+
+        /* Responsive Styles untuk HP */
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+            h1 {
+                font-size: 2em; /* Perkecil judul utama */
+            }
+            .menu-grid {
+                grid-template-columns: repeat(2, 1fr); /* Ubah jadi 2 kolom */
+                gap: 10px;
+            }
+            /* Agar ikon Galeri (item ke-7) berada di tengah pada tampilan HP (2 kolom) */
+            .menu-grid .menu-item:nth-child(7) {
+                grid-column: 1 / -1;
+                width: 50%;
+                margin: 0 auto;
+            }
+            .card {
+                padding: 15px;
+            }
+            .card-header h2 {
+                font-size: 1.2em; /* Perkecil judul fitur */
+            }
+            .login-card {
+                width: 85%;
+                padding: 25px;
+            }
+            .welcome-message img {
+                width: 150px !important; /* Perkecil GIF agar muat */
+            }
+            .feature-nav {
+                bottom: 10px;
+                padding: 8px 15px;
+                gap: 5px;
+            }
+            .feature-nav div {
+                width: 35px;
+                height: 35px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Jumpscare Elements -->
+<div id="jumpscare-screen">
+    <img src="gambar/jumpscare.jpg" alt="Jumpscare!">
+</div>
+<audio id="jumpscare-sound" src="musik/Jumpscare.mp3" preload="auto"></audio>
+
+
+<!-- Login Screen -->
+<div id="login-screen">
+    <div class="login-card">
+        <h2><i class="fas fa-lock"></i> Siapa Kamu?</h2>
+        <p>Masukkan nama lengkapmu untuk masuk!</p>
+        <input type="text" id="login-name" placeholder="Nama Lengkap...">
+        <button class="btn-generate" onclick="checkLogin()">Masuk</button>
+        <p id="error-msg">Maaf, kamu siapa yaa! 😢</p>
+    </div>
+    <div id="welcome-msg" class="welcome-message">
+        <!-- Ruang untuk GIF Lucu -->
+        <img src="gambar/beruanglove.gif" alt="GIF Lucu" style="width: 200px; border-radius: 20px; border: 4px solid white; box-shadow: 0 5px 15px rgba(0,0,0,0.2); margin-bottom: 0;">
+        
+        <!-- Teks Melengkung dengan SVG -->
+        <svg viewBox="0 0 500 250" width="100%" style="max-width: 500px; height: auto; overflow: visible; margin-top: -60px;">
+            <path id="curve" d="M 30 220 Q 250 50 470 220" fill="transparent"/>
+            <text width="500">
+                <textPath href="#curve" startOffset="50%" text-anchor="middle" fill="white" font-family="'Fredoka One', cursive" font-size="35px" style="filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.3));">
+                    Haiii Pacarku Sayanggg 💖
+                </textPath>
+            </text>
+        </svg>
+    </div>
+</div>
+
+<div class="container" id="main-content" style="display: none;">
+    <header>
+        <h1><i class="fas fa-cloud"></i> Dunia Kita <i class="fas fa-heart"></i></h1>
+        <p>Selamat Datang Di Zona For Both Of Us!</p>
+    </header>
+
+    <!-- Indikator Musik Berjalan (Hidden by default) -->
+    <div id="music-indicator" style="display: none; background: var(--white-glass); padding: 10px 20px; border-radius: 50px; margin: 0 auto 20px auto; width: fit-content; border: 2px solid var(--pink-deep); cursor: pointer; align-items: center; gap: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);" onclick="openFeature('feature-lagu')">
+        <i class="fas fa-music fa-spin" style="color: var(--pink-deep);"></i>
+        <span style="color: var(--pink-deep); font-weight: bold;">Musik Sedang Berputar...</span>
+    </div>
+
+    <!-- Menu Ikon -->
+    <div class="menu-grid" id="main-menu">
+        <div class="menu-item" onclick="openFeature('feature-ucapan')">
+            <i class="fas fa-magic"></i>
+            <span>Ucapan</span>
+        </div>
+        <div class="menu-item" onclick="openFeature('feature-lagu')">
+            <i class="fas fa-music"></i>
+            <span>Lagu</span>
+        </div>
+        <div class="menu-item" onclick="openFeature('feature-game')">
+            <i class="fas fa-gamepad"></i>
+            <span>Game</span>
+        </div>
+        <div class="menu-item" onclick="openFeature('feature-catatan')">
+            <i class="fas fa-sticky-note"></i>
+            <span>Deeptalk</span>
+        </div>
+        <div class="menu-item" onclick="openFeature('feature-video')">
+            <i class="fas fa-video"></i>
+            <span>Video</span>
+        </div>
+        <div class="menu-item" onclick="openFeature('feature-pesan')">
+            <i class="fas fa-envelope-open-text"></i>
+            <span>Pesan</span>
+        </div>
+        <div class="menu-item" onclick="openFeature('feature-foto')">
+            <i class="fas fa-images"></i>
+            <span>Galeri</span>
+        </div>
+    </div>
+
+    <!-- 1. Fitur Ucapan -->
+    <section id="feature-ucapan" class="card">
+        <button class="btn-back" onclick="closeFeature()">Kembali ke Menu</button>
+        <div class="card-header">
+            <i class="fas fa-magic"></i>
+            <h2>Kotak Ajaib Ucapan</h2>
+        </div>
+        <div id="greeting-display">Klik tombol di bawah untuk kejutan! ✨</div>
+        <button class="btn-generate" onclick="generateGreeting()">Buka Pesan Ajaib</button>
+    </section>
+
+    <!-- 2. Fitur Lagu -->
+    <section id="feature-lagu" class="card">
+        <button class="btn-back" onclick="closeFeature()">Kembali ke Menu</button>
+        <div class="card-header">
+            <i class="fas fa-music"></i>
+            <h2>Putar Musik Santai</h2>
+        </div>
+        <p>Dengarkan lagu sambil bersantai.</p>
+        
+        <!-- Lagu 1 -->
+        <div style="margin-bottom: 15px;">
+            <strong>1. Penjaga Hati - Nadhif</strong>
+            <audio controls class="audio-player">
+                <source src="musik/Nadhif_Penjaga Hati.mp3" type="audio/mpeg">
+            </audio>
+        </div>
+
+        <!-- Lagu 2 -->
+        <div style="margin-bottom: 15px;">
+            <strong>2. Bergema Selamanya - Nadhif</strong>
+            <audio controls class="audio-player">
+                <source src="musik/Nadhif_Bergema Selamanya.mp3" type="audio/mpeg">
+            </audio>
+        </div>
+
+        <!-- Lagu 3 -->
+        <div style="margin-bottom: 15px;">
+            <strong>3. Sedia Aku Sebelum Hujan - Idgitaf</strong>
+            <audio controls class="audio-player">
+                <source src="musik/idgitaf_Sedia aku Sebelum Hujan.mp3" type="audio/mpeg">
+            </audio>
+        </div>
+
+        <!-- Lagu 4 -->
+        <div style="margin-bottom: 15px;">
+            <strong>4. Bertaut - Nadin Amizah</strong>
+            <audio controls class="audio-player">
+                <source src="musik/Bertaut - Nadin Amizah.mp3" type="audio/mpeg">
+            </audio>
+        </div>
+
+        <!-- Lagu 5 -->
+        <div style="margin-bottom: 15px;">
+            <strong>5. Sampai Jadi Debu - Banda Naira</strong>
+            <audio controls class="audio-player">
+                <source src="musik/Sampai Jadi Debu - Banda Naira.mp3" type="audio/mpeg">
+            </audio>
+        </div>
+
+        <!-- Lagu 6 -->
+        <div style="margin-bottom: 15px;">
+            <strong>6. Location Unknows - Honne</strong>
+            <audio controls class="audio-player">
+                <source src="musik/Location Unknows - Honne.mp3" type="audio/mpeg">
+            </audio>
+        </div>
+    </section>
+
+    <!-- 3. Fitur Game -->
+    <section id="feature-game" class="card">
+        <button class="btn-back" onclick="closeFeature()">Kembali ke Menu</button>
+        <div class="card-header">
+            <i class="fas fa-dungeon"></i>
+            <h2>Game: Grid Jumpscare</h2>
+        </div>
+        <p>Gunakan tombol panah untuk mencapai garis finis (hijau) dan hindari monster! 👻<br><b>DISCLAIMER: KALO TAKUT DENGAN JUMPSACRE JANGAN MAIN YAA SAYANGG🩷🤗</b></p>
+        <div id="game-grid"></div>
+        <div class="game-controls">
+            <button class="btn-control" onclick="movePlayer('ArrowUp')"><i class="fas fa-arrow-up"></i></button>
+            <div class="horizontal-controls">
+                <button class="btn-control" onclick="movePlayer('ArrowLeft')"><i class="fas fa-arrow-left"></i></button>
+                <button class="btn-control" onclick="movePlayer('ArrowDown')"><i class="fas fa-arrow-down"></i></button>
+                <button class="btn-control" onclick="movePlayer('ArrowRight')"><i class="fas fa-arrow-right"></i></button>
+            </div>
+        </div>
+        <div id="game-message" style="text-align: center; font-weight: bold; margin-top: 15px; font-size: 1.2em; color: var(--pink-deep);"></div>
+        <button id="restart-game-btn" class="btn-generate" style="display: none; margin-top: 10px;">Main Lagi</button>
+    </section>
+
+    <!-- 4. Fitur Catatan -->
+    <section id="feature-catatan" class="card">
+        <button class="btn-back" onclick="closeFeature()">Kembali ke Menu</button>
+        <div class="card-header">
+            <i class="fas fa-sticky-note"></i>
+            <h2>Catatan Harian</h2>
+        </div>
+        <div id="notes-display" style="background: #fff0f5; padding: 20px; border-radius: 15px; min-height: 150px; font-size: 1.1em; border: 2px dashed var(--pink-deep); white-space: pre-wrap; font-family: 'Nunito', sans-serif;">
+            <!-- Teks animasi akan muncul di sini -->
+        </div>
+        <!-- Navigasi Halaman Catatan -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
+            <button id="btn-prev-note" onclick="changeNotePage(-1)" style="background: var(--pink-soft); border: none; padding: 10px 20px; border-radius: 15px; color: white; cursor: pointer; font-weight: bold; transition: 0.3s;">Sebelumnya</button>
+            <span id="page-indicator" style="color: var(--pink-deep); font-weight: bold; font-size: 1.1em;">1 / 4</span>
+            <button id="btn-next-note" onclick="changeNotePage(1)" style="background: var(--pink-deep); border: none; padding: 10px 20px; border-radius: 15px; color: white; cursor: pointer; font-weight: bold; transition: 0.3s;">Lanjut</button>
+        </div>
+    </section>
+
+    <!-- 5. Fitur Video -->
+    <section id="feature-video" class="card">
+        <button class="btn-back" onclick="closeFeature()">Kembali ke Menu</button>
+        <div class="card-header">
+            <i class="fas fa-video"></i>
+            <h2>Video Favorit</h2>
+        </div>
+        <p style="text-align: center;">Koleksi 5 video spesial kita 🎥</p>
+        
+        <div class="video-list">
+            <!-- Video 1 -->
+            <div class="video-item">
+                <div class="photo-desc" style="margin-bottom: 10px; font-weight: bold;">Setiap kali aku meliat video ini, dipikiran ku mudahan kita bisa sampee selamanya lawan ada pertanyaan "apa aku bisa meolah zahra bahagia terus" jarku 😔 pastii aku usahakan meolah ayangg bahagia, senang dan selalu tersenyumm🤗</div>
+                <video controls>
+                    <source src="video/senja.mp4" type="video/mp4">
+                    Browser kamu tidak mendukung tag video.
+                </video>
+            </div>
+            <!-- Video 2 -->
+            <div class="video-item">
+                <div class="photo-desc" style="margin-bottom: 10px; font-weight: bold;">Kalo video ini, impressionnya sama sih kaya yang pertama,cuman disini ada poto kamu hehee, jadii sambil liat poto kamuu hehee😙</div>
+                <video controls>
+                    <source src="video/harapan.mp4" type="video/mp4">
+                </video>
+            </div>
+            <!-- Video 3 -->
+            <div class="video-item">
+                <div class="photo-desc" style="margin-bottom: 10px; font-weight: bold;">ini waduhh first time kita jalan ke dm dannn first time menjemput, senanggg banget aku hehe🤗, kd nyangka bisa jemput princess dirumah</div>
+                <video controls>
+                    <source src="video/dm.mp4" type="video/mp4">
+                </video>
+            </div>
+            <!-- Video 4 -->
+            <div class="video-item">
+                <div class="photo-desc" style="margin-bottom: 10px; font-weight: bold;">milih cincin buat pernikahan kita kah hehee💍serius bgt milihnya, hehee seruu jalan sama kamuu ayangg😍</div>
+                <video controls>
+                    <source src="video/cincin.mp4" type="video/mp4">
+                </video>
+            </div>
+            <!-- Video 5 -->
+            <div class="video-item">
+                <div class="photo-desc" style="margin-bottom: 10px; font-weight: bold;">Sebagian kecil poto kita dan poto kamu sendiri hehee, cantikk soalnya jadi aku masukkan🥰tahun-tahun berikutnya sampai selamanya sama aku ajaa yaa jangan bosann, soalnya belum banyak kejutan yang aku beri hehee🤪🤭</div>
+                <video controls>
+                    <source src="video/akhir.mp4" type="video/mp4">
+                </video>
+            </div>
+        </div>
+
+        <div class="final-words">
+            terimakasii banyak udah hadir dalam hari-hari aku dan terimakasii atas 3 tahunn inii cintaa, kd pernah terbayang aku bisa bisi pacarr sumpahhh, kira aku bakal sendiri sampee nanti kerja, ehhh ternyataa ada cewe imutt, lucuuu, cantikk, comeyy yang datang. Disambut dengan sepenuh hatii dongg, masaa disia-siain....Rugiii dongggg😋. kehadirann ayangg itu part terseru, termanis, terbahagia di hidup aku, sama aku terus yaa. Jadi support system aku, jadi istri aku nanti, jadi kesayangan aku pokonya💖. Terimakasii banyakk ayangg udah terima aku apa adanya dan bisa bertahan sampee sekarang. you are one of the most special girl in my life😘💕💖
+        </div>
+    </section>
+
+    <!-- 6. Fitur Pesan -->
+    <section id="feature-pesan" class="card">
+        <button class="btn-back" onclick="closeFeature()">Kembali ke Menu</button>
+        <div class="card-header">
+            <i class="fas fa-envelope-open-text"></i>
+            <h2>Kirim Pesan</h2>
+        </div>
+        <form onsubmit="sendMessage(event)">
+            <div class="form-group">
+                <label>Nama Panggilan:</label>
+                <input type="text" required placeholder="Siapa namamu?">
+            </div>
+            <div class="form-group">
+                <label>Pesan :</label>
+                <textarea rows="4" required placeholder="Tulis sesuatu di sini..."></textarea>
+            </div>
+            <button type="submit" class="btn-send">Kirim <i class="fas fa-paper-plane"></i></button>
+        </form>
+    </section>
+
+    <!-- 7. Fitur Foto -->
+    <section id="feature-foto" class="card">
+        <button class="btn-back" onclick="closeFeature()">Kembali ke Menu</button>
+        <div class="card-header">
+            <i class="fas fa-images"></i>
+            <h2>Galeri Kita</h2>
+        </div>
+        <p style="text-align: center;">Momen-Momen Kita 📸</p>
+        
+        <div class="photo-gallery">
+            <!-- Foto 1 -->
+            <div class="photo-card">
+                <img src="gambar/pertama.webp" alt="Foto 1">
+                <div class="photo-desc">Poto mengejutkan ini, tiba tiba dikirimi poto hehee cantikk juga yaa maulida ini jar aku btw juga ini poto pertama ayangg ngirim ke aku hehee, aku gabungin</div>
+            </div>
+            <!-- Foto 2 -->
+            <div class="photo-card">
+                <img src="gambar/cantik.webp" alt="Foto 2">
+                <div class="photo-desc">inii cantikkk bangett aslii😍, aku waktu pertama liatt aduu terngiang ngiang sambil belajar, kaya 'bujuran diberi poto ini kah' jarku hehee</div>
+            </div>
+            <!-- Foto 3 -->
+            <div class="photo-card">
+                <img src="gambar/imut.webp" alt="Foto 3">
+                <div class="photo-desc">aduuuu imuttt bangett ayangg akuu🥰😘 gakk nyangka bisa jadi pacar aku, cewe imutt ini</div>
+            </div>
+            <!-- Foto 4 -->
+            <div class="photo-card">
+                <img src="gambar/podim.webp" alt="Foto 4">
+                <div class="photo-desc">dipoto diam diam yoo, kisah lalu yang bemasker dibelakang🙄</div>
+            </div>
+            <!-- Foto 5 -->
+            <div class="photo-card">
+                <img src="gambar/sedih.webp" alt="Foto 5">
+                <div class="photo-desc">utututt jangan sedii ayangg, kan ada aku pacar kamu, lucuu masih bemukena wkwkwkkw😋</div>
+            </div>
+            <!-- Foto 6 -->
+            <div class="photo-card">
+                <img src="gambar/fotbar 1.webp" alt="Foto 6">
+                <div class="photo-desc">wihhh fotbar pertama kitaa hehe🤗, aku seperti om jin yaa 'akan aku beri satu permintaan hohoho'👻</div>
+            </div>
+            <!-- Foto 7 -->
+            <div class="photo-card">
+                <img src="gambar/fotbar 2.webp" alt="Foto 7">
+                <div class="photo-desc">Gakk nyangkaa bisa selama itu punya hubungan hehe, sampee kita terkenal punya hubungan, comeyyy nya tuhh siapa yang aku rangkul tuhh 😋💕</div>
+            </div>
+            <!-- Foto 8 -->
+            <div class="photo-card">
+                <img src="gambar/kerja.webp" alt="Foto 8">
+                <div class="photo-desc">awal awal kerjaa sayangnyaa akuuu, widdihh udah begajii.... ekhemm bagi gaji dongg (candaa) wkwkwkkw😋</div>
+            </div>
+            <!-- Foto 9 -->
+            <div class="photo-card">
+                <img src="gambar/penari.webp" alt="Foto 9">
+                <div class="photo-desc">aduuuu ini penari palingg cantikk sihhh😍😍</div>
+            </div>
+            <!-- Foto 10 -->
+            <div class="photo-card">
+                <img src="gambar/date.webp" alt="Foto 10">
+                <div class="photo-desc">ngedatee pertamaa kitaa eyaaa, berapa kali ngedate dah kita nih🥰🥰</div>
+            </div>
+            <!-- Foto 11 -->
+            <div class="photo-card">
+                <img src="gambar/fotbar 3.webp" alt="Foto 11">
+                <div class="photo-desc">perpisahan ditempat kita bertemu😔, mudahan nanti kita kesampeann yaa sampee nikahhh😘</div>
+            </div>
+            <!-- Foto 12 -->
+            <div class="photo-card">
+                <img src="gambar/pipi.webp" alt="Foto 12">
+                <div class="photo-desc">chubby pipiinyaa, lucuuuww hehee mau kibit lagii deh nanti😙😙</div>
+            </div>
+            <!-- Foto 13 -->
+            <div class="photo-card">
+                <img src="gambar/princess.webp" alt="Foto 13">
+                <div class="photo-desc">anggun sekaliii ayangg😍, gakk kebayang sihh kalo kita nikah nanti, kamu bakal secantikk apaa, cantikkkkkkkk bangettttt😍🥰 pasti kena aku gugup, ini siapa jarku bidadari kah😋</div>
+            </div>
+            <!-- Foto 14 -->
+            <div class="photo-card">
+                <img src="gambar/nyantai.webp" alt="Foto 14">
+                <div class="photo-desc">habis narii nih, talking-talking di indo sampee lupa waktu hehh, keramiann withh uu hehee😙</div>
+            </div>
+            <!-- Foto 15 -->
+            <div class="photo-card">
+                <img src="gambar/pantai.webp" alt="Foto 15">
+                <div class="photo-desc">Kira waktu ke pantai, gakk inget aku soalnya cuek, ternyata ingat yaa hehe dituliskan lagi namaku di pasir hehee🫢</div>
+            </div>
+        </div>
+
+        <div class="final-words">
+            itu momen-momen kita sayangg🩷🤗, kalo kamu kepikiran mau break atau putus sama aku, tolong kenang lagi momen kita ini, gak mudah kita bisa bertahan sampee sekarang, dan sayangg banget kita udah sejauh ini akhirnya malah udahann. Kalo udahan pacaran boleh sihh tapi diganti statusnya jadi suami istri hehee🫂, tapi habis nikah pacaran lagi hehee💖, aku slaluuu sayangg ayangg lovee youu moree my girll😙🥰💕
+        </div>
+    </section>
+
+    <!-- Navigation Bar (Hidden by default) -->
+    <div id="feature-nav" class="feature-nav" style="display: none;">
+        <div onclick="closeFeature()" title="Menu Utama"><i class="fas fa-home"></i></div>
+        <div onclick="openFeature('feature-ucapan')" id="nav-ucapan"><i class="fas fa-magic"></i></div>
+        <div onclick="openFeature('feature-lagu')" id="nav-lagu"><i class="fas fa-music"></i></div>
+        <div onclick="openFeature('feature-game')" id="nav-game"><i class="fas fa-gamepad"></i></div>
+        <div onclick="openFeature('feature-catatan')" id="nav-catatan"><i class="fas fa-sticky-note"></i></div>
+        <div onclick="openFeature('feature-video')" id="nav-video"><i class="fas fa-video"></i></div>
+        <div onclick="openFeature('feature-pesan')" id="nav-pesan"><i class="fas fa-envelope-open-text"></i></div>
+        <div onclick="openFeature('feature-foto')" id="nav-foto"><i class="fas fa-images"></i></div>
+    </div>
+
+    <footer>
+        <p>Dibuat dengan 💖 dan ☁️ | Tema Pink & Biru Langit</p>
+    </footer>
+</div>
+
+<script>
+    // --- LOGIKA LOGIN ---
+    function checkLogin() {
+        const nameInput = document.getElementById('login-name').value;
+        const errorMsg = document.getElementById('error-msg');
+        
+        // Cek apakah nama sesuai (menggunakan trim untuk menghapus spasi tidak sengaja)
+        if (nameInput.trim() === "Maulida Zahrati") {
+            // Sembunyikan form login
+            document.querySelector('.login-card').style.display = 'none';
+            // Tampilkan pesan animasi
+            document.getElementById('welcome-msg').style.display = 'flex';
+            
+            // Tunggu 3 detik sebelum masuk ke menu utama
+            setTimeout(() => {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('main-content').style.display = 'block';
+            }, 4000);
+        } else {
+            errorMsg.style.display = 'block';
+        }
+    }
+
+    // --- LOGIKA UCAPAN ---
+    const greetings = [
+        "Happy New Year Sayanggg💕🥳",
+        "Jangan lupa Selalu Tersenyum yaa, Senyum kamu Yang Termanis Di Dunia Ini😍",
+        "Warna Biru Melambangkan Ketenangan Dan Kedamaian Dalam Hubungan Kita💫",
+        "Warna pink melambangkan rasa sayang yang terus tumbuh🥰",
+        "Semangat Terus yaa menjalani hari-harinya, aku support ayangg teruss😘",
+        "Jadi Ibu Dari Anak-Anak Kita Nanti Yaa👰‍♀️"
+    ];
+
+    let currentGreetingIndex = 0;
+
+    function generateGreeting() {
+        document.getElementById('greeting-display').innerText = greetings[currentGreetingIndex];
+        currentGreetingIndex++;
+        if (currentGreetingIndex >= greetings.length) {
+            currentGreetingIndex = 0;
+        }
+    }
+
+    // --- LOGIKA PEMUTAR MUSIK (Playlist & Indikator) ---
+    const audioPlayers = document.querySelectorAll('.audio-player');
+    const musicIndicator = document.getElementById('music-indicator');
+
+    audioPlayers.forEach((player, index) => {
+        // 1. Auto-play Next Song (Lanjut ke lagu berikutnya saat selesai)
+        player.addEventListener('ended', () => {
+            const nextIndex = index + 1;
+            if (nextIndex < audioPlayers.length) {
+                audioPlayers[nextIndex].play();
+            }
+        });
+
+        // 2. Stop other players when one starts (Agar tidak tumpang tindih)
+        player.addEventListener('play', () => {
+            audioPlayers.forEach(p => {
+                if (p !== player) {
+                    p.pause();
+                    p.currentTime = 0;
+                }
+            });
+            checkMusicIndicator();
+        });
+
+        // 3. Cek indikator saat pause
+        player.addEventListener('pause', () => {
+            setTimeout(checkMusicIndicator, 100);
+        });
+    });
+
+    function checkMusicIndicator() {
+        const isPlaying = Array.from(audioPlayers).some(p => !p.paused && !p.ended);
+        const isMusicFeatureOpen = document.getElementById('feature-lagu').classList.contains('active');
+        musicIndicator.style.display = (isPlaying && !isMusicFeatureOpen) ? 'flex' : 'none';
+    }
+
+    // --- LOGIKA GAME LABIRIN ---
+    const gameGrid = document.getElementById('game-grid');
+    const gameMessage = document.getElementById('game-message');
+    const restartGameBtn = document.getElementById('restart-game-btn');
+    const jumpscareScreen = document.getElementById('jumpscare-screen');
+    const jumpscareSound = document.getElementById('jumpscare-sound');
+
+    const TILE = { PATH: 0, WALL: 1, START: 'S', FINISH: 'F', MONSTER: 'M' };
+
+    let gameMap = [];
+
+    let playerPos = { x: 0, y: 0 };
+    let gameRunning = false;
+    let monsterTimeout;
+
+    // Fungsi BFS untuk memastikan ada jalan aman
+    function checkPathExists(rows, cols) {
+        const queue = [{x: 0, y: 0}];
+        const visited = new Set(['0,0']);
+        const directions = [{x:0, y:1}, {x:0, y:-1}, {x:1, y:0}, {x:-1, y:0}];
+
+        while (queue.length > 0) {
+            const {x, y} = queue.shift();
+            if (x === cols - 1 && y === rows - 1) return true;
+
+            for (const dir of directions) {
+                const nx = x + dir.x;
+                const ny = y + dir.y;
+
+                if (nx >= 0 && nx < cols && ny >= 0 && ny < rows) {
+                    if (!visited.has(`${nx},${ny}`) && gameMap[ny][nx] !== TILE.MONSTER && gameMap[ny][nx] !== TILE.WALL) {
+                        visited.add(`${nx},${ny}`);
+                        queue.push({x: nx, y: ny});
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    function setupGame() {
+        gameRunning = true;
+        gameGrid.innerHTML = '';
+        gameMessage.textContent = '';
+        restartGameBtn.style.display = 'none';
+        clearTimeout(monsterTimeout);
+
+        // --- GENERATE MAP ACAK ---
+        const rows = 6;
+        const cols = 6;
+        const monsterCount = 10; // Jumlah monster yang akan muncul
+        
+        let isValidMap = false;
+        while (!isValidMap) {
+            // 1. Buat grid kosong penuh jalan (PATH)
+            gameMap = Array(rows).fill().map(() => Array(cols).fill(TILE.PATH));
+
+            // 2. Set Start (Pojok Kiri Atas) dan Finish (Pojok Kanan Bawah)
+            gameMap[0][0] = TILE.START;
+            gameMap[rows-1][cols-1] = TILE.FINISH;
+
+            // 3. Acak posisi monster
+            let placed = 0;
+            let attempts = 0;
+            while (placed < monsterCount && attempts < 1000) {
+                const r = Math.floor(Math.random() * rows);
+                const c = Math.floor(Math.random() * cols);
+                // Syarat: Bukan di Start, Finish, atau kotak tepat di sebelah Start (agar aman di awal)
+                if (gameMap[r][c] === TILE.PATH && !(r === 0 && c === 0) && !(r === rows-1 && c === cols-1) && !(r === 0 && c === 1) && !(r === 1 && c === 0)) {
+                    gameMap[r][c] = TILE.MONSTER;
+                    placed++;
+                }
+                attempts++;
+            }
+            
+            // 4. Cek apakah ada jalan aman
+            if (checkPathExists(rows, cols)) {
+                isValidMap = true;
+            }
+        }
+
+        gameMap.forEach((row, y) => {
+            row.forEach((cell, x) => {
+                const cellDiv = document.createElement('div');
+                cellDiv.classList.add('grid-cell');
+                cellDiv.id = `cell-${x}-${y}`;
+
+                switch (cell) {
+                    case TILE.WALL: cellDiv.classList.add('wall'); break;
+                    case TILE.START:
+                        cellDiv.classList.add('start');
+                        playerPos = { x, y };
+                        break;
+                    case TILE.FINISH: cellDiv.classList.add('finish'); break;
+                    case TILE.MONSTER: cellDiv.classList.add('monster'); break;
+                }
+                gameGrid.appendChild(cellDiv);
+            });
+        });
+
+        document.getElementById(`cell-${playerPos.x}-${playerPos.y}`).classList.add('player');
+        window.addEventListener('keydown', handleKeydown);
+
+        // Sembunyikan monster setelah 2 detik
+        monsterTimeout = setTimeout(() => {
+            const monsters = document.querySelectorAll('.monster');
+            monsters.forEach(el => el.classList.remove('monster'));
+        }, 2000);
+    }
+
+    function movePlayer(key) {
+        if (!gameRunning) return;
+
+        let newX = playerPos.x;
+        let newY = playerPos.y;
+
+        switch (key) {
+            case 'ArrowUp': newY--; break;
+            case 'ArrowDown': newY++; break;
+            case 'ArrowLeft': newX--; break;
+            case 'ArrowRight': newX++; break;
+            default: return;
+        }
+
+        if (newX < 0 || newX >= gameMap[0].length || newY < 0 || newY >= gameMap.length || gameMap[newY][newX] === TILE.WALL) {
+            return;
+        }
+
+        document.getElementById(`cell-${playerPos.x}-${playerPos.y}`).classList.remove('player', 'start');
+        playerPos = { x: newX, y: newY };
+        document.getElementById(`cell-${playerPos.x}-${playerPos.y}`).classList.add('player');
+
+        if (gameMap[newY][newX] === TILE.MONSTER) {
+            triggerJumpscare();
+        } else if (gameMap[newY][newX] === TILE.FINISH) {
+            winGame();
+        }
+    }
+
+    function handleKeydown(e) {
+        if (!gameRunning) return;
+        if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+            e.preventDefault();
+            movePlayer(e.key);
+        }
+    }
+
+    function triggerJumpscare() {
+        gameRunning = false;
+        window.removeEventListener('keydown', handleKeydown);
+        jumpscareSound.currentTime = 0;
+        jumpscareSound.volume = 1.0;
+        jumpscareSound.play();
+        jumpscareScreen.style.display = 'flex';
+        
+        setTimeout(() => {
+            jumpscareScreen.style.display = 'none';
+            gameMessage.textContent = 'YAHH KENA DEHH! 😱';
+            gameMessage.style.color = '#ff4757';
+            restartGameBtn.style.display = 'block';
+        }, 2000); // Durasi jumpscare
+    }
+
+    function winGame() {
+        gameRunning = false;
+        window.removeEventListener('keydown', handleKeydown);
+        gameMessage.textContent = 'SELAMAT, KAMU MENANG SAYANGG! 🎉💖🥰';
+        restartGameBtn.style.display = 'block';
+        createLoveConfetti();
+    }
+
+    function createLoveConfetti() {
+        const emojis = ['💖', '💕', '🥰', '😍', '💗', '💓', '💘', '💝'];
+        
+        for (let i = 0; i < 50; i++) {
+            const confetti = document.createElement('div');
+            confetti.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+            confetti.classList.add('love-confetti');
+            
+            confetti.style.left = Math.random() * 100 + 'vw';
+            confetti.style.animationDuration = (Math.random() * 3 + 2) + 's';
+            confetti.style.fontSize = (Math.random() * 1.5 + 1) + 'em';
+            confetti.style.animationDelay = Math.random() * 2 + 's';
+            
+            document.body.appendChild(confetti);
+
+            setTimeout(() => confetti.remove(), 7000);
+        }
+    }
+
+    restartGameBtn.addEventListener('click', setupGame);
+
+    // --- LOGIKA CATATAN ---
+    // Ganti teks di bawah ini dengan catatan yang ingin kamu tampilkan
+    const notePages = [
+        [ // Halaman 1
+            "Hai sayang! 💖",
+            "Aku ada sesuatu yang ingin aku sampaikan... jangan lupa pake lagu supaya ada suara yang indah seperti suara kamuu hehee",
+            "Sebelumnya Happy New Year Sayanggkuu🥳.. Terimakasii banyak udah sama aku dalam 3 tahun ini yaa, Baru kamu deh rasanya yang bisa meolah aku sesayangg ini asekkk💕, btw jugaa kamu makin lama makin cantikk yaa hehee mana imutt bangett lagii, manjaa jugaa hehee (aku sukaa bangett dengan manjaa kamuu benerann) aku manjainn teruss kokk kamuu sayangg. jangan maluu bermanja samaa aku yaa cintaaa🤗",
+            "Banyak yaa suka duka juga tahun ini, menurut aku tahun ini hubungan kita rasa ada beratnya yaa daripada pas tahun kamu me time terus, tapi senanggnyaa ada jugaa dan plot twist nya, jadi aku mau ngungkapin sesuatu perihal yaa ada yang mengganjal lah yaa",
+            "Tapi ayangg jangan tersinggung dengan kata kata aku, aku cuman mau kamu tau aja kaya gimana perasaan aku tahun ini yang meolah aku bisa berkata 'berat' tadi.",
+            "Mungkin ada beberapa yang kaya mengakar banget jadi susah di perbaikinya, gakk papa itu, nanti aku aja yang nyesuaikan, tapii sekesal-kesalnya akuu sama kamu, tetap aja kamu cewe tersayang, terfavorit, tercinta akuu🥰😘, cuman aku kan juga punya perasaan jadi wajar aja kan kalo aku bisa kesal dan marah sama kamu?"
+
+        ],
+        [ // Halaman 2
+            "Disini mungkin agak panjang yaa...",
+            "Langsung aja gin lahh unek unek aku",
+            "Pertama, akutu merasa kalo ayangg itu lebih mentingkan diri sendiri sih jadi kaya gakk peduli aja sama perasaaan aku, rasanya ada deh aku ungkapin ini. Contohnya aja kamu manggil aku dengan kata-kata manis itu pas mood kamu baik aja, kada tau kamu kalo perasaan aku lagi kd nyaman, hdk disemangati. aku tu disemangati pake kata 'sayang' aja semangat sudah😒. mungkin aku teumpat alur jua lah misalkan mood aku kd baik aku kd manggil sayang juga, cumann itu aku kayanya teumpat aja deh, soalnya dulu pas kesal tetap pake kata kata manis teumpat alur aja aku timbull mun marah koler manggil pake kata kata manis, kaya merasa kd sering dipanggil itu, padahal kan aku juga pengen dipanggil begitu. Tapi karna kesal itu pang jadi teumpatt alur/terbiasa males pake kata kata itu. pokonya mun mood kamu baik baru kata kata manis nya keluar kalo pas b aja yaa kada keluar. diminta dulu baru keluar. Dan banyakk aku minta sesuatuu kecilll bangettt padahal, ditolak. behh mun mengisahkan ditolak nih sangattt seringg sihhhh. minta gigit pipi aja nolak, padahal sejuta persen kd mungkin aku gigit pipi, ditampar orang banar ai, aku cuman mau mendengar kata 'boleh' itu aja sih. mun melakukannya gin kd wanii biar kamu membolehi",
+            "Kedua, ini lama banar dahh dan terulang terus kalo kamu tuu ditanya sesuatu dan sesuatu nih berarti banarr penjelasannya buat aku, kamu milih menghindar dan marah kalo itu di bahas, ini dulu banar lah sebagai contoh aja lah, setiap aku bertanya tentang adam lama sihh sudah, padahal yang aku takuni tu kaya yang mengganggu sih menurut aku di kepala aku. makanya aku menakuni dan harapannya kamu menjawab apapun jawabannya, tapi kamu malah marah kaya malah menambah pertanyaan aku 'kenapa marah,kan aku cuman nanya,kok malah marah' dipikiran aku timbul kaya ada sesuatu kh nih (bukannya aku gakk percayaa, aku cuman nanyaa dan pertanyaan aku tuu beda dari sebelummnya cuman pengen kamu itu jawab just it) dan setiap kita ada masalah timbul teingat dengan kesalahan kamu ini. Selain itu kaya kata kamu 'aku nih kd excited' kamu orang yang paling bisa meolah aku excited . cuman semalam itu yang meolah aku marah siapa coba🙄. kamu meanggap aku ni apa kitu nah, menjelaskan sesuatu yang kecil kaitu ja kd hakun tapi memadahi, kena aku salah paham kamu juga yang marah, kaya kemaren tu aku salah paham, kamu malah marah habistu jar kamu 'makanya nanya' aku nanya aja dijawab kaitu. Meolah aku bepikir kaya aku nih siapanya kaitu baya menjelaskan aja koler. nah dari situ yang setiap kali kd excited siapa yooo biasanya orang excited tuh malah ketuju menjelaskan panjang lebar apalgi lawan orang yang spesial menurutnya, aku gakk spesialkan cuman b aja ya kann😒. Ingat lah kita waktu ulangan mtk, aku menjelaskan panjang lebar padahal kawa aku suruh kamu nonton video yutub aja. tapi aku tetap menjelaskan dulu panjang lebar walaupun aku tau tetap kd paham karna penjelasan aku kurang jelas. Itu pang yang membedakan kamu dengan orang lain jaka orang lain aku suruh nonton video yutub aja beapa uyuh uyuh menjelaskan. Kamu itu bukan sekedar teman (jauhh diatass teman🫂) makanya aku hakun menjelaskan panjang lebar walaupun kamunya kd paham akhirnya karna emang susah, baru aku carikan video. Kira kira begitu",
+            "Ketiga, ini menyangkut respon. hmm pas aku di balangan itu pas cerita tentang aku tekunci di wc hehe. menurut kamu, chat kamu itu singkat yaa?. menurut aku itu, respon kamu kaya biasanya deh. aku aja kaya 'loh masih marah kah? gara gara aku kemaren tu?' jar ku nih.' kd sadar hehee. karna menurut aku, emangg biasanya respon kamu pas aku cerita sebagian besar begitu.... yaa kd keliatan excited, nahh karna itu jua dipikiran aku tuu kdd hdk cerita... yaa direspon begitu juga. paling kalo pas lagi bingung mau ngapain habistu aku cerita ai buat ngisi topik dan responnya gimana....  yaa begitu jugaa tapi yaudah lah jar ku ,emang biasanya begitu. ini buat ngasih ke kamu aja gambaran chat kamu ke aku tuh kiapa, paling 'yayayaya', 'iyaa', 'alhamdulilah', 'wkwkwkww' dan sebagainya. pas aku long text ginn, paling dijawab yaa seperti itu aja gak terlalu panjang juga, kaya yaudah gituu. Makin hari makin cuek jua. kalo kata kamu 'aku gak excited'... hmmm coba liat diri kamu ke aku aja dehh, gimana responnya. tohh aku kd excited pasti ada sebabnya bisa karena kamu bikin aku marah, atau aku emang lagi sibuk dan buka wa cuman ada perlu aja habisnya aku jawab panjang lagi. karna yang bisa bikin aku excited tu cuman kamu, yang bisa bikin aku down itu yaa kamu juga😊",
+            "Keempat, ini emang sudah mengakar yaa, udah dipadahi berkali kali tetap aja begini, kada kawa dihilangkan kalo ini sih, online tapi gak langsung baca🤐. yapp itu lagi..... bingung aku impression nya apa yaa. ada semalam tuh umaa kesal banar aku, 'kamu cerita' jar kamu, pas aku cerita panjang 3 buble chat kah sudah rasanya kdd biru biru jua centangnya jar ku nih. beapa gerang,padahal online, kd niat lalu mendengari tapi menyuruh. karna badmood waktu tuh sudah, aku bilang tamat udah ceritanya padahal belum hehe. Timbul di pikiran aku itu 'nahh chatan sama siapa nihh'. pas ketemuan, aku membuka wa juga kaya takutan banar, santai aja dongg."
+        ],
+        [ // Halaman 3
+            "Sekian unek - unek yang menurut aku, kamu harus tau. Kalo semuanya di ungkapin panjang bgt hehee",
+            "Nah dari yang unek unek tadi,perasaan aku itu : timbul aku kaya bechatan tuh malah banyak kesalnya😒,aku juga timbul merasa kaya ada orang lain yang dekatin kamu, merasa kalo kamu tu mau ampih sama aku tapi bingung caranya,aku merasa gakk dihargai juga dan aku merasa gakk yakin kamu masih cinta ke aku atau gakk",
+            "Dulu kamu tuu menghibur biasanya setiap bechatan, aku jadi semangat dan wahh pokonyaa kita ekhhh sayangg sayangan bangett gitu. Tapi sekarang itu, kamu kaya b aja, meanggap yaa aku kawan kamu kaya biasa, lebih kaya maless dan sebagainya. Semua yang menyangkut tentang kamu itu bisa tebawa ke mood aku sehari hari, bisa meolah aku senang menjalani hari hari, bisa jua meolah aku koleww menjalani hari hari. ",
+            "Mungkin aku keliatan kaya gakk apa apa kann kaya masih manis kata katanya, yaa karna aku gakk mau meolah perasaan kamu itu tambah capee, banyak pikiran, apalgi pas hari itu kamu kerjaa aduuuu cukup cape di kerjaan nya aja deh. Kenapa juga aku jarang ngeluarin unek unek? bisa ayang liat yang tentang unek unek bagian pertama dan ketiga, aku nuggu momen yang pas aja ungkapinnya. Pas esoknya kita mau jalan ke dm itu yang gakk jadi, itu lagi kesal tuh, bukan kesal karna gakk jadi, kesal karna respon kamu cuekk. Tapi habistu kamu nangis gara gara ada yang minta gantiin, nahhh gakk mungkin aku tetap kesalll yakann, siannn pacar aku lagii sedii ditambahi pulang. aku hibur sebisanya dan minimal aku gakk nambahin beban ke kamu atau aku paksa. Nah itu contoh kecil kenapa aku nunggu momen pas."
+        ],
+        [ // Halaman 4
+            "kira kira begitu lah yaa unek uneknya",
+            "yang aku ungkapin itu duluu yaa, sekarang akunya yang sudah membiasakan diri dengan sikap kamu, kalo kamu merasa aku ada perubahan nahh bisa jadi karna itu. tapiii sayangg akuu, cintaa akuu tetapp ke ayanggg dan tidak berkurang. Pokonyaa ayangg yang palinggg aku sayangg❤️, gakk ada duanyaa cantiknyaa aku ini😍",
+            "Tahun ini jugaa termasuk tahun yang banyak plot twistnya, bisa jemput kamu di rumah, keingatan pas bechatan dulu aku nanya lo 'kapan lah aku bisa menjemput kamu dirumah dan mama abah kamu tau terus bisa salim', habistu kamu jawab mungkin pas umur kita 20 tahun an jarr, ternyata gak sampee 20 tahun, bisa kesampean hahahhahha. Mudahan rencana nikah nya 6 tahun lagi bisa lebih cepat hehee👰‍♀️... aamiin. aku jugaa kdd kepikiran mau mutusin kamu atau mau ngelepas kamu, soalnyaa akuu sayangg bangettt aslii😍 mana semua first action aku itu di kamu kaya terus terang dengan keluarga, keluarga aku mendukung, menjemput kerumah, hugg, kiss semuanya first di kamu. Ohh yaaa...aku juga gakk nyangka kamu dulu itu suka aku, soalnya aku liat kamu itu maniss sihh orangnya dan cantikk juga bersihhh mukanya (aku kira skincarenya mahall, ternyata manis dan cantik belum tentu skincarenya mahal yaa hehee😍), pas itu muka aku breakout lo bejerawatt banyakk hehh(😋mana bulik umroh lagi, gundul pacul), sampai wahini bekasnya masih ada. Tapi kenapa lah kamu suka aku.... kalo menurut kamu aku pinter hmmm terimakasii banyakk tapi masa gakk liat fisiknya pasti liat kan dikit banyaknya, kenapa mauu gitu lohh? masih pertanyaan. Tapi aku gak melarang juga kamu suka sama yang lain, ada tapinya juga aku kd mau sama orang yang punya 2 condong, kalo kamu suka sama yang lain bilang aja, aku bebasin kamu kok. Dan mungkin aku gak bisa kembali lagi sama kamu. Kalo kamu ada marah sama aku ungkapin aja jangan ada gengsi, soalnya kamu pandai juga mendam rasa kesal lama lama kaitu, marahin aja aku, sambati jaa aku, jangan sampee karna kesal kamu yang terlalu di pendam meolah sayang kamu ke aku bekurang. Dan jangan chatingan sama aku tu terasa beban, kalo lagi mau me time seharian gak papaa, aku gakk suka memaksakan.",
+            "Harapan aku, kita gakk ada kata putus dan ampihan yaa, aku mau selamanya sama kamuu, kamu jugaa mau kan sama aku teruss😔?..., Kita jalanin sama sama yaa dan ayangg jangan mikir sama aku itu nyamann teruss, aku juga ada kalanya susah, aku harapp kamu bisa support aku terus yaa. Aku gak mau kita sampee pacarann aja, aku jugaa gak cuman main main sama kamu, kd kaya mencari raminya aja kaitu nah, aku mauu serius sama kamu, mau halalin kamu, mau selamanya sama kamu💫. Pokonya mau jalanin semuanya sama sama. Tapi untuk sekarang aku cuman bisa kata kata aja, untuk buktinya aku belum bisa beri... maaf yaa sayangg. Kita udah menjalani lumayan jauh sampe ortu kita sama sama tau, aku gakk mau meolah ortunya khawatir sama anaknya yang imutt ini (kan udahh ada yang jaga)😋",
+            "maaf yaa sayangg kalo aku gak seperti yang kamu harapkan, kalo aku ada salah tegur aja, pasti aku maklumin kok kan aku pasti banyak salah sama kamu. Ingatt aku selalu ada disamping kamu, setiap kamu perlu sesuatu hubungi aja aku. Tetap sama aku yaa sayangg, gakk tentu lohh laki laki yang lain kaya aku asekkk",
+            "You are my girlfriend who I really love and will always be my favorite forever💖🥰😘",
+            "Doakan aku supaya jadi orang yang sukses bisa banggain orang tua dan kamu yaa plus ortu kamu hehe. Pasti mudah dapat restu",
+            "From Dani",
+            "Semoga terhibur dengan website ini",
+            "I Love Youuu Soo Muchh Bebbb😙💕",
+            "Jangan lupa pesan buat aku, biar aku bisa instrospeksi diri teruss yaa, ada itu fitur pesannya nanti otomatis tekirim di WA aku"
+        ]
+    ];
+
+    let currentNotePage = 0;
+    let typingTimeout;
+
+    function startTyping() {
+        const display = document.getElementById('notes-display');
+        display.innerHTML = ""; // Bersihkan layar
+        clearTimeout(typingTimeout); // Hentikan animasi sebelumnya jika ada
+        
+        // Ambil teks berdasarkan halaman saat ini
+        const currentLines = notePages[currentNotePage];
+        
+        let lineIndex = 0;
+        let charIndex = 0;
+
+        function typeLine() {
+            if (lineIndex < currentLines.length) {
+                if (charIndex < currentLines[lineIndex].length) {
+                    display.innerHTML += currentLines[lineIndex].charAt(charIndex);
+                    charIndex++;
+                    typingTimeout = setTimeout(typeLine, 40); // Kecepatan mengetik
+                } else {
+                    display.innerHTML += "<br><br>"; // Pindah baris
+                    lineIndex++;
+                    charIndex = 0;
+                    typingTimeout = setTimeout(typeLine, 500); // Jeda antar baris
+                }
+            }
+        }
+        typeLine();
+        updateNoteButtons();
+    }
+
+    function showNoteImmediately() {
+        const display = document.getElementById('notes-display');
+        display.innerHTML = ""; // Bersihkan layar
+        clearTimeout(typingTimeout); // Hentikan animasi sebelumnya jika ada
+        
+        const currentLines = notePages[currentNotePage];
+        display.innerHTML = currentLines.join("<br><br>");
+        
+        updateNoteButtons();
+    }
+
+    function changeNotePage(step) {
+        const newPage = currentNotePage + step;
+        if (newPage >= 0 && newPage < notePages.length) {
+            currentNotePage = newPage;
+            if (step < 0) {
+                showNoteImmediately();
+            } else {
+                startTyping();
+            }
+        }
+    }
+
+    function updateNoteButtons() {
+        document.getElementById('page-indicator').innerText = `${currentNotePage + 1} / ${notePages.length}`;
+        
+        const btnPrev = document.getElementById('btn-prev-note');
+        const btnNext = document.getElementById('btn-next-note');
+        
+        btnPrev.style.opacity = currentNotePage === 0 ? "0.5" : "1";
+        btnPrev.disabled = currentNotePage === 0;
+        
+        btnNext.style.opacity = currentNotePage === notePages.length - 1 ? "0.5" : "1";
+        btnNext.disabled = currentNotePage === notePages.length - 1;
+    }
+
+    // --- LOGIKA PESAN ---
+    function sendMessage(event) {
+        event.preventDefault(); // Mencegah reload halaman
+        
+        const form = event.target;
+        const name = form.querySelector('input').value;
+        const message = form.querySelector('textarea').value;
+        
+        // --- KONFIGURASI WHATSAPP ADMIN ---
+        // Ganti angka di bawah ini dengan nomor WhatsApp kamu (Admin)
+        // Contoh: "6281234567890" (Gunakan kode negara 62, tanpa + atau 0 di depan)
+        const nomorAdmin = "62895367083937"; 
+        
+        const text = `Halo Admin! 💌\n\nAda pesan baru dari website:\nNama: ${name}\nPesan: ${message}\n\nWaktu: ${new Date().toLocaleString()}`;
+        const waLink = `https://wa.me/${nomorAdmin}?text=${encodeURIComponent(text)}`;
+        
+        // Buka WhatsApp untuk mengirim pesan
+        window.open(waLink, "_blank");
+        
+        alert("Pesan akan dikirim! 💌");
+        form.reset();
+    }
+
+    // --- LOGIKA NAVIGASI MENU ---
+    function openFeature(featureId) {
+        // Sembunyikan menu
+        document.getElementById('main-menu').style.display = 'none';
+        
+        // Sembunyikan semua fitur dulu (untuk switch antar fitur)
+        document.querySelectorAll('.card').forEach(card => card.classList.remove('active'));
+        
+        // Tampilkan fitur yang dipilih
+        document.getElementById(featureId).classList.add('active');
+
+        // Tampilkan Navigasi
+        const nav = document.getElementById('feature-nav');
+        nav.style.display = 'flex';
+
+        // Update Active State di Navigasi
+        document.querySelectorAll('.feature-nav div').forEach(el => el.classList.remove('active'));
+        const navId = featureId.replace('feature-', 'nav-');
+        const activeNav = document.getElementById(navId);
+        if(activeNav) activeNav.classList.add('active');
+
+        checkMusicIndicator(); // Cek status musik saat pindah fitur
+
+        // Jalankan animasi ketik jika fitur catatan dibuka
+        if (featureId === 'feature-catatan') {
+            currentNotePage = 0; // Reset ke halaman 1 saat dibuka
+            startTyping();
+        }
+        if (featureId === 'feature-game') {
+            setupGame();
+        }
+    }
+
+    function closeFeature() {
+        // Sembunyikan semua fitur
+        document.querySelectorAll('.card').forEach(card => card.classList.remove('active'));
+        // Sembunyikan Navigasi
+        document.getElementById('feature-nav').style.display = 'none';
+        // Tampilkan menu kembali
+        document.getElementById('main-menu').style.display = 'grid';
+
+        checkMusicIndicator(); // Cek status musik saat kembali ke menu
+
+        // Hentikan game jika sedang berjalan untuk mencegah input saat di menu
+        window.removeEventListener('keydown', handleKeydown);
+        gameRunning = false;
+    }
+</script>
+
+</body>
+</html>
